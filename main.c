@@ -3,6 +3,7 @@
 MIT No Attribution
 
 Copyright (c) 2021 Mika Tuupola
+Copyright (c) 2022 Kemal Hadimli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -131,7 +132,7 @@ void static inline show_fps() {
     fps_flag = 0;
 
     /* Set clip window to full screen so we can display the messages. */
-    hagl_set_clip_window(display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
+    hagl_set_clip(display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
 
     /* Print the message on top left corner. */
     swprintf(message, sizeof(message), L"%s    ", demo[effect]);
@@ -146,14 +147,14 @@ void static inline show_fps() {
     hagl_put_text(display, message, DISPLAY_WIDTH - 60, DISPLAY_HEIGHT - 14, green, font6x9);
 
     /* Set clip window back to smaller so effects do not mess the messages. */
-    hagl_set_clip_window(display, 0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
+    hagl_set_clip(display, 0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
 }
 
 int main()
 {
     size_t bytes = 0;
     struct repeating_timer switch_timer;
-    struct repeating_timer show_timer;
+//    struct repeating_timer show_timer;
 
     // set_sys_clock_khz(133000, true);
     // clock_configure(
@@ -171,27 +172,16 @@ int main()
 
     fps_init(&fps);
 
-    // memset(&backend, 0, sizeof(hagl_backend_t));
-    // backend.buffer = malloc(MIPI_DISPLAY_WIDTH * MIPI_DISPLAY_HEIGHT * (DISPLAY_DEPTH / 8));
-    // backend.buffer2 = malloc(MIPI_DISPLAY_WIDTH * MIPI_DISPLAY_HEIGHT * (DISPLAY_DEPTH / 8));
-    // hagl_hal_init(&backend);
-    // display = &backend;
-
-    // memset(&backend, 0, sizeof(hagl_backend_t));
-    // backend.buffer = malloc(MIPI_DISPLAY_WIDTH * MIPI_DISPLAY_HEIGHT * (DISPLAY_DEPTH / 8));
-    // hagl_hal_init(&backend);
-    // display = &backend;
-
     display = hagl_init();
 
     hagl_clear(display);
-    hagl_set_clip_window(display, 0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
+//    hagl_set_clip(display, 0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
 
     /* Change demo every 10 seconds. */
     add_repeating_timer_ms(10000, switch_timer_callback, NULL, &switch_timer);
 
     /* Update displayed FPS counter every 250 ms. */
-    add_repeating_timer_ms(250, show_timer_callback, NULL, &show_timer);
+//    add_repeating_timer_ms(250, show_timer_callback, NULL, &show_timer);
 
     while (1) {
 
