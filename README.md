@@ -1,8 +1,20 @@
 ## Old schoold demo effects for Raspberry Pi Pico, Galactic Unicorn edition
 
+![demo](./doc/demo1.gif)
+
 Originally from [pico_effects](https://github.com/tuupola/pico_effects) by [@tuupola](https://github.com/tuupola)
 
 If you cannot compile yourself build directory contains a [recent firmware](https://github.com/disq/galactic_effects/raw/master/build/firmware.uf2) for uploading to [Galactic Unicorn](https://shop.pimoroni.com/products/galactic-unicorn).
+
+## Buttons
+
+Volume buttons switch between effects.
+
+Sleep button enables or disables auto switching of effects, which is set to 10 seconds and is enabled by default.
+
+Brightness buttons control the brightness of the LEDs.
+
+Double-click on the reset button puts the Unicorn in bootloader mode.
 
 ## Compile
 

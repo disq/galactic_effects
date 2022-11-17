@@ -14,7 +14,7 @@ project(firmware C CXX ASM)
 
 pico_sdk_init()
 
-add_executable(firmware main.c metaballs.c plasma.c rotozoom.c deform.c)
+add_executable(firmware main.c galactic.cpp galactic.h metaballs.c metaballs.h plasma.c plasma.h rotozoom.c rotozoom.h deform.c deform.h)
 
 pico_set_program_name(firmware "Galactic Effects")
 pico_set_program_version(firmware "0.1")
@@ -49,6 +49,12 @@ target_compile_definitions(firmware PRIVATE
   HAGL_HAL_USE_DOUBLE_BUFFER
 #  HAGL_HAL_USE_TRIPLE_BUFFER
 #  HAGL_HAL_USE_DMA
-  HAGL_HAL_DEBUG
+#  HAGL_HAL_DEBUG
 #  HAGL_HAL_PIXEL_SIZE=2
+  DISPLAY_WIDTH=212
+  DISPLAY_HEIGHT=44
+#  DISPLAY_HEIGHT=88
+  GALACTIC_PIXEL_DIVISOR_X=2
+  GALACTIC_PIXEL_DIVISOR_Y=2
+#  GALACTIC_PIXEL_DIVISOR_Y=3
 )
