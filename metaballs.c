@@ -40,16 +40,16 @@ struct ball {
     struct vector2 position;
     struct vector2 velocity;
     uint16_t radius;
-    uint16_t color;
+    color_t color;
 };
 
 struct ball balls[16];
 
-static const uint8_t NUM_BALLS = 2;
+static const uint8_t NUM_BALLS = 3;
 static const uint8_t MIN_VELOCITY = 3;
 static const uint8_t MAX_VELOCITY = 5;
-static const uint8_t MIN_RADIUS = 22;
-static const uint8_t MAX_RADIUS = 32;
+static const uint8_t MIN_RADIUS = 6;
+static const uint8_t MAX_RADIUS = 14;
 static const uint8_t PIXEL_SIZE = 2;
 
 void metaballs_init()
@@ -57,7 +57,7 @@ void metaballs_init()
     /* Set up imaginary balls inside screen coordinates. */
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].radius = (rand() % MAX_RADIUS) + MIN_RADIUS;
-        balls[i].color = 0xffff;
+        balls[i].color = 0xffffff;
         balls[i].position.x = rand() % DISPLAY_WIDTH;
         balls[i].position.y = rand() % DISPLAY_HEIGHT;
         balls[i].velocity.x = (rand() % MAX_VELOCITY) + MIN_VELOCITY;

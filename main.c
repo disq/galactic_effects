@@ -64,13 +64,14 @@ static const uint64_t US_PER_FRAME_25_FPS = 1000000 / 25;
 
 const uint32_t autoswitch_timer_ms = 10000; // 10 seconds
 
-static char demo[3][32] = {
+#define DEMO_COUNT 3
+
+static char demo[DEMO_COUNT][32] = {
     "METABALLS",
     "PLASMA",
     "ROTOZOOM",
 //    "DEFORM",
 };
-#define DEMO_COUNT 3
 
 bool switch_timer_callback(struct repeating_timer *t) {
     switch_flag = 1;
@@ -92,7 +93,7 @@ void static inline switch_demo() {
         break;
     case 2:
         printf("Closing rotozoom.\n");
-        //rotozoom_close();
+        rotozoom_close();
         break;
     case 3:
         printf("Closing deform.\n");
@@ -120,7 +121,7 @@ void static inline switch_demo() {
         break;
     case 2:
         printf("Initialising rotozoom.\n");
-        rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head, true);
+        rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head);
         break;
     case 3:
         printf("Initialising deform.\n");
