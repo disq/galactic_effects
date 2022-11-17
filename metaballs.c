@@ -121,3 +121,7 @@ void metaballs_render(hagl_backend_t const *display)
         }
     }
 }
+
+void metaballs_close() {
+// nop
+}

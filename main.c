@@ -63,14 +63,30 @@ static const uint64_t US_PER_FRAME_30_FPS = 1000000 / 30;
 static const uint64_t US_PER_FRAME_25_FPS = 1000000 / 25;
 
 const uint32_t autoswitch_timer_ms = 10000; // 10 seconds
+bool init_done = false;
+
+typedef struct {
+    const char *name;
+    void (*init_func)();
+    void (*animate_func)();
+    void (*render_func)(hagl_backend_t const *display);
+    void (*close_func)();
+} effects_t;
 
 #define DEMO_COUNT 3
 
-static char demo[DEMO_COUNT][32] = {
-    "METABALLS",
-    "PLASMA",
-    "ROTOZOOM",
-//    "DEFORM",
+static void rotozoom_initwrapper() {
+  rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head);
+}
+static void plasma_initwrapper() {
+  plasma_init(display);
+}
+
+static effects_t demos[DEMO_COUNT] = {
+    {"Metaballs", metaballs_init, metaballs_animate, metaballs_render, metaballs_close},
+    {"Plasma", plasma_initwrapper, plasma_animate, plasma_render, plasma_close},
+    {"Rotozoom", rotozoom_initwrapper, rotozoom_animate, rotozoom_render, rotozoom_close},
+//    {"Deform", deform_init, deform_animate, deform_render, deform_close},
 };
 
 bool switch_timer_callback(struct repeating_timer *t) {
@@ -82,23 +98,9 @@ void static inline switch_demo() {
     signed int switch_val = switch_flag;
     switch_flag = 0;
 
-    switch(effect) {
-    case 0:
-        printf("Closing metaballs.\n");
-        //metaballs_close();
-        break;
-    case 1:
-        printf("Closing plasma.\n");
-        plasma_close();
-        break;
-    case 2:
-        printf("Closing rotozoom.\n");
-        rotozoom_close();
-        break;
-    case 3:
-        printf("Closing deform.\n");
-        deform_close();
-        break;
+    if (init_done && effect>=0) {
+      printf("Closing %s\n", demos[effect].name);
+      demos[effect].close_func();
     }
 
     signed int nexteff = effect + switch_val;
@@ -110,25 +112,8 @@ void static inline switch_demo() {
     effect = nexteff;
 //    effect = (effect + switch_val) % DEMO_COUNT;
 
-    switch(effect) {
-    case 0:
-        printf("Initialising metaballs.\n");
-        metaballs_init();
-        break;
-    case 1:
-        printf("Initialising plasma.\n");
-        plasma_init(display);
-        break;
-    case 2:
-        printf("Initialising rotozoom.\n");
-        rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head);
-        break;
-    case 3:
-        printf("Initialising deform.\n");
-        deform_init();
-        break;
-    }
-
+    printf("Starting %s\n", demos[effect].name);
+    demos[effect].init_func();
     aps_init(&bps);
 }
 
@@ -138,14 +123,14 @@ int main()
     struct repeating_timer switch_timer;
     bool do_timer = true;
 
-    // set_sys_clock_khz(133000, true);
-    // clock_configure(
-    //     clk_peri,
-    //     0,
-    //     CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS,
-    //     133000 * 1000,
-    //     133000 * 1000
-    // );
+//     set_sys_clock_khz(133000, true);
+//     clock_configure(
+//         clk_peri,
+//         0,
+//         CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS,
+//         133000 * 1000,
+//         133000 * 1000
+//     );
 
     stdio_init_all();
 //    galactic_unicorn.init(); // this is done in hagl_hal_init() so no need to do here
@@ -158,12 +143,15 @@ int main()
     /* Change demo every 10 seconds. */
     if (do_timer) add_repeating_timer_ms(autoswitch_timer_ms, switch_timer_callback, NULL, &switch_timer);
 
+    switch_demo();
+    init_done = true;
+
     while (1) {
         uint64_t start = time_us_64();
-      if(galactic_is_button_pressed(galactic_sw_brightness_up)) {
+        if(galactic_is_button_pressed(galactic_sw_brightness_up)) {
           galactic_adj_brightness(+0.01f);
         }
-      if(galactic_is_button_pressed(galactic_sw_brightness_down)) {
+        if(galactic_is_button_pressed(galactic_sw_brightness_down)) {
           galactic_adj_brightness(-0.01f);
         }
         bool redo_timer = false;
@@ -192,24 +180,8 @@ int main()
           add_repeating_timer_ms(autoswitch_timer_ms, switch_timer_callback, NULL, &switch_timer);
         }
 
-        switch(effect) {
-        case 0:
-            metaballs_animate();
-            metaballs_render(display);
-            break;
-        case 1:
-            plasma_animate();
-            plasma_render(display);
-            break;
-        case 2:
-            rotozoom_animate();
-            rotozoom_render(display);
-            break;
-        case 3:
-            deform_animate();
-            deform_render(display);
-            break;
-        }
+        demos[effect].animate_func();
+        demos[effect].render_func(display);
 
         /* Flush back buffer contents to display. NOP if single buffering. */
         bytes = hagl_flush(display);
@@ -219,7 +191,7 @@ int main()
 
         /* Print the message in console and switch to next demo. */
         if (switch_flag != 0) {
-            printf("%s at %d fps / %d kBps\r\n", demo[effect], (uint32_t)fps.current, (uint32_t)(bps.current / 1024));
+            printf("%s at %d fps / %d kBps\r\n", demos[effect].name, (uint32_t)fps.current, (uint32_t)(bps.current / 1024));
             switch_demo();
         }
 
