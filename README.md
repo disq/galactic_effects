@@ -23,7 +23,7 @@ Below instructions assume you do not have [Raspberry Pi Pico SDK](https://github
 ```
 $ git clone --recursive https://github.com/raspberrypi/pico-sdk.git
 $ git clone --recursive https://github.com/pimoroni/pimoroni-pico.git
-$ git clone --recursive  https://github.com/disq/galactic_effects.git
+$ git clone --recursive https://github.com/disq/galactic_effects.git
 $ cd galactic_effects/build
 $ cmake ..
 $ make -j8
