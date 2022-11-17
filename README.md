@@ -1,4 +1,4 @@
-## Old schoold demo effects for Raspberry Pi Pico, Galactic Unicorn edition
+## Old school demo effects for Raspberry Pi Pico, Galactic Unicorn edition
 
 ![demo](./doc/demo1.gif)
 
