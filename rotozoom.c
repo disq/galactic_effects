@@ -28,8 +28,7 @@ SPDX-License-Identifier: MIT-0
 #include <stdlib.h>
 #include <math.h>
 #include <hagl.h>
-
-#include "head.h"
+#include <rgb565.h>
 
 static const uint8_t SPEED = 2;
 static const uint8_t PIXEL_SIZE = 2;
@@ -38,8 +37,17 @@ static uint16_t angle;
 // static float sinlut[360];
 // static float coslut[360];
 
-void rotozoom_init()
+static uint8_t texture_width, texture_height;
+static uint8_t *texture_data;
+static bool texture_565;
+
+void rotozoom_init(uint8_t w, uint8_t h, const uint8_t *data, bool is_565)
 {
+  texture_width = w;
+  texture_height = h;
+  texture_data = (uint8_t *)data;
+  texture_565 = is_565;
+
     /* Generate look up tables. */
     // for (uint16_t i = 0; i < 360; i++) {
     //     sinlut[i] = sin(i * M_PI / 180);
@@ -61,21 +69,29 @@ void rotozoom_render(hagl_backend_t const *display)
         for (uint16_t y = 0; y < DISPLAY_HEIGHT; y = y + PIXEL_SIZE) {
 
             /* Get a rotated pixel from the head image. */
-            int16_t u = (int16_t)((x * c - y * s) * z) % HEAD_WIDTH;
-            int16_t v = (int16_t)((x * s + y * c) * z) % HEAD_HEIGHT;
+            int16_t u = (int16_t)((x * c - y * s) * z) % texture_width;
+            int16_t v = (int16_t)((x * s + y * c) * z) % texture_height;
 
             u = abs(u);
             if (v < 0) {
-                v += HEAD_HEIGHT;
+                v += texture_height;
             }
-            color_t *color = (color_t*) (head + HEAD_WIDTH * sizeof(color_t) * v + sizeof(color_t) * u);
+
+            color_t color;
+            if (texture_565) {
+              uint16_t *input = (uint16_t*)(texture_data + texture_width * sizeof(uint16_t) * v + sizeof(uint16_t) * u);
+              rgb_t c = rgb565_to_rgb888(input);
+              color = (color_t)((c.r<<16) | (c.g<<8) | c.b);
+            } else{
+              color = *(color_t*) (texture_data + texture_width * sizeof(color_t) * v + sizeof(color_t) * u);
+            }
 
             if (1 == PIXEL_SIZE) {
-                hagl_put_pixel(display, x, y, *color);
+                hagl_put_pixel(display, x, y, color);
             } else {
-                hagl_fill_rectangle(display, x, y, x + PIXEL_SIZE - 1, y + PIXEL_SIZE - 1, *color);
+                hagl_fill_rectangle(display, x, y, x + PIXEL_SIZE - 1, y + PIXEL_SIZE - 1, color);
             }
-            // hagl_put_pixel(x, y, *color);
+            // hagl_put_pixel(x, y, color);
         }
     }
 }

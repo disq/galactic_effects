@@ -46,6 +46,7 @@ SPDX-License-Identifier: MIT-0
 #include "plasma.h"
 #include "rotozoom.h"
 #include "deform.h"
+#include "head.h"
 
 static uint8_t effect = 0;
 volatile signed int switch_flag = 1;
@@ -119,7 +120,7 @@ void static inline switch_demo() {
         break;
     case 2:
         printf("Initialising rotozoom.\n");
-        rotozoom_init();
+        rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head, true);
         break;
     case 3:
         printf("Initialising deform.\n");
