@@ -26,10 +26,10 @@ SPDX-License-Identifier: MIT-0
 */
 
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include <hagl.h>
 #include <rgb565.h>
+#include "convert.h"
 
 static const uint8_t SPEED = 2;
 static const uint8_t PIXEL_SIZE = 2;
@@ -51,17 +51,7 @@ void rotozoom_init(uint8_t w, uint8_t h, const uint8_t *data888)
 
   texture_width = w;
   texture_height = h;
-
-  // convert 888 to 0888 because of color_t being uint32_t
-  size_t new_size = w*h*sizeof(color_t);
-  texture_data = (uint8_t*)malloc(new_size);
-  memset(texture_data, 0, new_size);
-
-  for (int i = 0; i < w*h; i++) {
-    texture_data[i*4+1] = data888[i*3];
-    texture_data[i*4+2] = data888[i*3+1];
-    texture_data[i*4+3] = data888[i*3+2];
-  }
+  texture_data = convert_888(w, h, data888);
 }
 
 void rotozoom_close() {
@@ -80,7 +70,6 @@ void rotozoom_render(hagl_backend_t const *display)
 
     for (uint16_t x = 0; x < DISPLAY_WIDTH; x = x + PIXEL_SIZE) {
         for (uint16_t y = 0; y < DISPLAY_HEIGHT; y = y + PIXEL_SIZE) {
-
             /* Get a rotated pixel from the head image. */
             int16_t u = (int16_t)((x * c - y * s) * z) % texture_width;
             int16_t v = (int16_t)((x * s + y * c) * z) % texture_height;

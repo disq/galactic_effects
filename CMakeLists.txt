@@ -14,7 +14,7 @@ project(firmware C CXX ASM)
 
 pico_sdk_init()
 
-add_executable(firmware main.c galactic.cpp galactic.h metaballs.c metaballs.h plasma.c plasma.h rotozoom.c rotozoom.h deform.c deform.h head.h)
+add_executable(firmware main.c galactic.cpp galactic.h metaballs.c metaballs.h plasma.c plasma.h rotozoom.c rotozoom.h deform.c deform.h convert.c convert.h head.h)
 
 pico_set_program_name(firmware "Galactic Effects")
 pico_set_program_version(firmware "0.1")

@@ -32,8 +32,7 @@ SPDX-License-Identifier: MIT-0
 #include <stdlib.h>
 #include <math.h>
 #include <hagl.h>
-
-#include "head.h"
+#include "convert.h"
 #include "deform.h"
 
 static const uint8_t SPEED = 2;
@@ -42,7 +41,10 @@ static uint32_t frame;
 
 int8_t *lut;
 
-void deform_init()
+uint8_t deform_texture_width, deform_texture_height;
+uint8_t *deform_texture_data;
+
+void deform_init(uint8_t w, uint8_t h, const uint8_t *data888)
 {
     /* Allocate memory for lut and store address also to ptr. */
     int8_t *ptr = lut = malloc(DISPLAY_HEIGHT * DISPLAY_WIDTH * 2 * sizeof(int8_t));
@@ -87,13 +89,17 @@ void deform_init()
             // const float v = y;
 
             /* Target x and y coordinates in the texture. */
-            const int8_t tx = ((int8_t)(HEAD_WIDTH * u)) % HEAD_WIDTH;
-            const int8_t ty = ((int8_t)(HEAD_HEIGHT * v)) % HEAD_HEIGHT;
+            const int8_t tx = ((int8_t)(w * u)) % w;
+            const int8_t ty = ((int8_t)(h * v)) % h;
 
             *(ptr++) = tx;
             *(ptr++) = ty;
         }
     }
+
+  deform_texture_width = w;
+  deform_texture_height = h;
+  deform_texture_data = convert_888(w, h, data888);
 }
 
 void deform_render(hagl_backend_t const *display)
@@ -107,11 +113,11 @@ void deform_render(hagl_backend_t const *display)
             int16_t u = *(ptr++) + frame;
             int16_t v = *(ptr++) + frame;
 
-            u = abs(u) % HEAD_WIDTH;
-            v = abs(v) % HEAD_HEIGHT;
+            u = abs(u) % deform_texture_width;
+            v = abs(v) % deform_texture_height;
 
             /* Get the pixel from texture and put it to the screen. */
-            const color_t *color = (color_t*) (head + HEAD_WIDTH * sizeof(color_t) * v + sizeof(color_t) * u);
+            const color_t *color = (color_t*) (deform_texture_data + deform_texture_width * sizeof(color_t) * v + sizeof(color_t) * u);
 
             if (1 == PIXEL_SIZE) {
                 hagl_put_pixel(display, x, y, *color);
@@ -130,4 +136,5 @@ void deform_animate()
 void deform_close()
 {
     free(lut);
+    free(deform_texture_data);
 }

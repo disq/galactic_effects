@@ -25,7 +25,7 @@ SPDX-License-Identifier: MIT-0
 
 */
 
-void deform_init();
+void deform_init(uint8_t w, uint8_t h, const uint8_t *data888);
 void deform_render(hagl_backend_t const *display);
 void deform_animate();
 void deform_close();

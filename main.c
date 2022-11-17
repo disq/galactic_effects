@@ -75,18 +75,15 @@ typedef struct {
 
 #define DEMO_COUNT 3
 
-static void rotozoom_initwrapper() {
-  rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head);
-}
-static void plasma_initwrapper() {
-  plasma_init(display);
-}
+static void rotozoom_initwrapper() { rotozoom_init(HEAD_WIDTH, HEAD_HEIGHT, head); }
+static void deform_initwrapper() { deform_init(HEAD_WIDTH, HEAD_HEIGHT, head); }
+static void plasma_initwrapper() { plasma_init(display); }
 
 static effects_t demos[DEMO_COUNT] = {
     {"Metaballs", metaballs_init, metaballs_animate, metaballs_render, metaballs_close},
     {"Plasma", plasma_initwrapper, plasma_animate, plasma_render, plasma_close},
     {"Rotozoom", rotozoom_initwrapper, rotozoom_animate, rotozoom_render, rotozoom_close},
-//    {"Deform", deform_init, deform_animate, deform_render, deform_close},
+//    {"Deform", deform_initwrapper, deform_animate, deform_render, deform_close},
 };
 
 bool switch_timer_callback(struct repeating_timer *t) {
