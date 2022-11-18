@@ -14,7 +14,7 @@ uint8_t* convert_888(uint8_t w, uint8_t h, const uint8_t *data888)
   for (int i = 0; i < w*h; i++) {
     new_data[i*4+2] = data888[i*3];
     new_data[i*4+1] = data888[i*3+1];
-    new_data[i*4+3] = data888[i*3+2];
+    new_data[i*4] = data888[i*3+2];
   }
   return new_data;
 }
