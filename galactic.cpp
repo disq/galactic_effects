@@ -26,6 +26,10 @@ void galactic_adj_brightness(float diff) {
   galactic_unicorn.adjust_brightness(diff);
 }
 
+uint16_t galactic_get_light_level() {
+  return galactic_unicorn.light();
+}
+
 #ifdef __cplusplus
 }
 #endif

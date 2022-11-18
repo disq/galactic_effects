@@ -46,6 +46,8 @@ uint8_t *deform_texture_data;
 
 void deform_init(uint8_t w, uint8_t h, const uint8_t *data888)
 {
+    frame = 0;
+
     /* Allocate memory for lut and store address also to ptr. */
     int8_t *ptr = lut = malloc(DISPLAY_HEIGHT * DISPLAY_WIDTH * 2 * sizeof(int8_t));
 

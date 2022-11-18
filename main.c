@@ -63,7 +63,9 @@ static const uint64_t US_PER_FRAME_30_FPS = 1000000 / 30;
 static const uint64_t US_PER_FRAME_25_FPS = 1000000 / 25;
 
 const uint32_t autoswitch_timer_ms = 10000; // 10 seconds
+const uint32_t debounce_ms = 300; // 300 ms
 bool init_done = false;
+static bool do_auto_light = true;
 
 typedef struct {
     const char *name;
@@ -86,9 +88,19 @@ static effects_t demos[DEMO_COUNT] = {
 //    {"Deform", deform_initwrapper, deform_animate, deform_render, deform_close},
 };
 
+void auto_adjust_brightness() {
+  float light_level = ((float)galactic_get_light_level())/4095.0f;
+  galactic_set_brightness(light_level + 0.15f);
+}
+
 bool switch_timer_callback(struct repeating_timer *t) {
     switch_flag = 1;
     return true;
+}
+
+bool light_timer_callback(struct repeating_timer *t) {
+  if (do_auto_light) auto_adjust_brightness();
+  return true;
 }
 
 void static inline switch_demo() {
@@ -118,6 +130,7 @@ int main()
 {
     size_t bytes = 0;
     struct repeating_timer switch_timer;
+    struct repeating_timer light_timer;
     bool do_timer = true;
 
 //     set_sys_clock_khz(133000, true);
@@ -131,46 +144,68 @@ int main()
 
     stdio_init_all();
 //    galactic_unicorn.init(); // this is done in hagl_hal_init() so no need to do here
-    galactic_set_brightness(0.5f);
 
     fps_init(&fps);
     display = hagl_init();
     hagl_clear(display);
 
-    /* Change demo every 10 seconds. */
+    auto_adjust_brightness();
+
+  /* Change demo every 10 seconds. */
     if (do_timer) add_repeating_timer_ms(autoswitch_timer_ms, switch_timer_callback, NULL, &switch_timer);
+
+    add_repeating_timer_ms(1000, light_timer_callback, NULL, &light_timer);
 
     switch_demo();
     init_done = true;
 
     while (1) {
         uint64_t start = time_us_64();
-        if(galactic_is_button_pressed(galactic_sw_brightness_up)) {
+
+        bool brightness_up = galactic_is_button_pressed(galactic_sw_brightness_up);
+        bool brightness_down = galactic_is_button_pressed(galactic_sw_brightness_down);
+        if (brightness_up && brightness_down) {
+          galactic_set_brightness(0.0f);
+          demos[effect].animate_func();
+          demos[effect].render_func(display);
+          hagl_flush(display);
+          do_auto_light = true;
+          sleep_ms(100);
+          auto_adjust_brightness();
+          printf("Auto-brightness re-enabled\n");
+          demos[effect].animate_func();
+          demos[effect].render_func(display);
+          hagl_flush(display);
+          sleep_ms(500);
+          continue; // we've messed with everything this loop, restart
+        } else if (brightness_up) {
           galactic_adj_brightness(+0.01f);
-        }
-        if(galactic_is_button_pressed(galactic_sw_brightness_down)) {
+          do_auto_light = false;
+        } else if (brightness_down) {
           galactic_adj_brightness(-0.01f);
+          do_auto_light = false;
         }
         bool redo_timer = false;
         if(galactic_is_button_pressed(galactic_sw_vol_up)) {
           // switch to next
           switch_flag = 1;
           redo_timer = do_timer;
-          sleep_ms(100);
+          sleep_ms(debounce_ms);
         }
         if(galactic_is_button_pressed(galactic_sw_vol_down)) {
           // switch to previous
           switch_flag = -1;
           redo_timer = do_timer;
-          sleep_ms(100);
+          sleep_ms(debounce_ms);
         }
         if(galactic_is_button_pressed(galactic_sw_sleep)) {
           printf(do_timer ? "Cancelling timer\n" : "Enabling timer\n");
           do_timer = !do_timer;
           if (do_timer) redo_timer = true;
           else cancel_repeating_timer(&switch_timer);
-          sleep_ms(100);
+          sleep_ms(debounce_ms);
         }
+//        printf("light: %d\n", galactic_get_light_level());
         if (redo_timer) {
           // restart the timer
           cancel_repeating_timer(&switch_timer);

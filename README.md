@@ -10,11 +10,15 @@ If you cannot compile yourself build directory contains a [recent firmware](http
 
 Volume buttons switch between effects.
 
-Sleep button enables or disables auto switching of effects, which is set to 10 seconds and is enabled by default.
+Zzz button enables or disables auto switching of effects, which is set to 10 seconds and is enabled by default.
 
-Brightness buttons control the brightness of the LEDs.
+Double-click on the reset button to put the Unicorn in bootloader mode.
 
-Double-click on the reset button puts the Unicorn in bootloader mode.
+### Brightness
+
+Brightness is auto-adjusted every second using data from the light sensor on the front right side of the Unicorn (between the Zzz and Volume - buttons).
+
+Brightness buttons are active and when used, auto-adjustment is disabled. To re-enable, click both brightness buttons at the same time. The LEDs will turn off momentarily and brightness will be auto-adjusted.
 
 ## Compile
 
